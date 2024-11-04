@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestros Productos - Ciberseguridad</title>
+    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        .navbar {
+            background-color: #004085;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #fff;
+        }
+        .cart-icon-container {
+            position: relative;
+            margin-left: 20px;
+        }
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ff4444;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #0070BA;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .pp-checkout-container {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .pp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #F7F9FA;
+            border-radius: 10px 10px 0 0;
+        }
+        .pp-logo {
+            height: 35px;
+        }
+        .pp-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0070BA;
+        }
+        .pp-form-section {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .pp-form-section h3 {
+            color: #2C2E2F;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .pp-button {
+            background-color: #0070BA;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 500;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            width: 100%;
+            max-width: 350px;
+        }
+        .pp-button:hover {
+            background-color: #003087;
+            color: white;
+        }
+        .pp-input {
+            border: 1px solid #9DA3A6;
+            border-radius: 4px;
+            padding: 12px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .pp-input:focus {
+            border-color: #0070BA;
+            box-shadow: 0 0 0 2px rgba(0,112,186,0.2);
+            outline: none;
+        }
+        .order-summary {
+            background: #F7F9FA;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #2C2E2F;
+        }
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 20px;
+            position: relative;
+        }
+        .step.active {
+            background: #0070BA;
+            color: white;
+        }
+        .step:not(:last-child):after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 2px;
+            background: #ddd;
+            right: -40px;
+            top: 50%;
+        }
+        .success-message {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+        .success-icon {
+            font-size: 60px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">CiberSeguridad Perú</a>
+            <div class="cart-icon-container">
+                <i class="fas fa-shopping-cart text-white fa-lg"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Products container -->
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Firewall de Red</h5>
+                        <p class="card-text">Precio: $800</p>
+                        <input type="number" class="form-control mb-2" min="1" value="1" id="cantidad-CS101">
+                        <button class="pp-button" onclick="agregarAlCarrito('Firewall de Red', 800, 'CS101')">
+                            Agregar al carrito
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Antivirus Avanzado</h5>
+                        <p class="card-text">Precio: $500</p>
+                        <input type="number" class="form-control mb-2" min="1" value="1" id="cantidad-CS102">
+                        <button class="pp-button" onclick="agregarAlCarrito('Antivirus Avanzado', 500, 'CS102')">
+                            Agregar al carrito
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Sistema IDS</h5>
+                        <p class="card-text">Precio: $2800</p>
+                        <input type="number" class="form-control mb-2" min="1" value="1" id="cantidad-CS103">
+                        <button class="pp-button" onclick="agregarAlCarrito('Sistema IDS', 2800, 'CS103')">
+                            Agregar al carrito
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PayPal Checkout Modal -->
+    <div class="modal fade" id="modalCheckout" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <div class="pp-checkout-container">
+                        <div class="pp-header">
+                            <img src="https://www.paypalobjects.com/webstatic/mktg/Logo/pp-logo-100px.png" alt="PayPal" class="pp-logo">
+                            <div class="pp-amount" id="totalAmount">$0.00</div>
+                        </div>
+
+                        <div class="progress-steps mb-4">
+                            <div class="step active">1</div>
+                            <div class="step">2</div>
+                            <div class="step">3</div>
+                        </div>
+
+                        <div class="order-summary">
+                            <h3>Resumen del Pedido</h3>
+                            <div id="orderItems"></div>
+                            <hr>
+                            <div class="order-item">
+                                <strong>Total</strong>
+                                <strong id="summaryTotal">$0.00</strong>
+                            </div>
+                        </div>
+
+                        <form id="checkoutForm" class="pp-form-section">
+                            <h3>Información de Contacto</h3>
+                            <input type="email" class="pp-input" placeholder="Email" required>
+                            <input type="tel" class="pp-input" placeholder="Teléfono" required>
+                            
+                            <h3 class="mt-4">Dirección de Envío</h3>
+                            <input type="text" class="pp-input" placeholder="Nombre completo" required>
+                            <input type="text" class="pp-input" placeholder="Dirección" required>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input type="text" class="pp-input" placeholder="Ciudad" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" class="pp-input" placeholder="Código Postal" required>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <button type="button" class="pp-button" onclick="procesarPago()">
+                                    Pagar ahora
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="success-message" id="successMessage">
+                            <i class="fas fa-check-circle success-icon"></i>
+                            <h3>¡Pago Completado!</h3>
+                            <p>Su pedido ha sido procesado correctamente.</p>
+                            <p>Recibirá un email con los detalles de su compra.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let carrito = [];
+        
+        // Mostrar loading al cargar la página
+        window.addEventListener('load', function() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            setTimeout(function() {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }, 1500);
+        });
+
+        function agregarAlCarrito(nombre, precio, codigo) {
+            const cantidad = parseInt(document.getElementById(`cantidad-${codigo}`).value);
+            const subtotal = precio * cantidad;
+            
+            const index = carrito.findIndex(item => item.codigo === codigo);
+            
+            if (index !== -1) {
+                carrito[index].cantidad += cantidad;
+                carrito[index].subtotal = carrito[index].precio * carrito[index].cantidad;
+            } else {
+                carrito.push({
+                    nombre: nombre,
+                    precio: precio,
+                    cantidad: cantidad,
+                    subtotal: subtotal,
+                    codigo: codigo
+                });
+            }
+
+            actualizarCarrito();
+            $('#modalCheckout').modal('show');
+        }
+
+        function actualizarCarrito() {
+            const cartCount = document.getElementById('cartCount');
+            const orderItems = document.getElementById('orderItems');
+            const totalAmount = document.getElementById('totalAmount');
+            const summaryTotal = document.getElementById('summaryTotal');
+            
+            let total = 0;
+            let itemCount = 0;
+            
+            orderItems.innerHTML = '';
+            carrito.forEach(item => {
+                orderItems.innerHTML += `
+                    <div class="order-item">
+                        <span>${item.nombre} x${item.cantidad}</span>
+                        <span>$${item.subtotal}</span>
+                    </div>
+                `;
+                total += item.subtotal;
+                itemCount += item.cantidad;
+            });
+            
+            cartCount.textContent = itemCount;
+            totalAmount.textContent = `$${total}`;
+            summaryTotal.textContent = `$${total}`;
+        }
+
+        function procesarPago() {
+            const form = document.getElementById('checkoutForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                form.style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+                
+                setTimeout(() => {
+                    $('#modalCheckout').modal('hide');
+                    carrito = [];
+                    actualizarCarrito();
+                    form.reset();
+                    form.style.display = 'block';
+                    document.getElementById('successMessage').style.display = 'none';
+                }, 3000);
+            }, 2000);
+        }
+    </script>
+
+    <!-- Bootstrap and Dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+</body>
+</html>
